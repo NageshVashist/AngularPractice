@@ -11,19 +11,20 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./recipe-list.component.css']
 })
 export class RecipeListComponent implements OnInit {
-  @Output() recipeWasSelected= new EventEmitter<Recipe>();
-  recipes: Recipe[]=[];
-  
-  constructor(private recipeService:RecipeService,private router:Router,private route:ActivatedRoute) { }
+  @Output() recipeWasSelected = new EventEmitter<Recipe>();
+  recipes: Recipe[] = [];
+
+  constructor(private recipeService: RecipeService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit() {
-    const observer:Observable<Recipe[]>=this.recipeService.getRecipes();
-    observer.subscribe((recipeData:Recipe[])=>{
-      this.recipes=recipeData;
+    this.recipes = this.recipeService.getRecipes();
+    this.recipeService.recipeChanged.subscribe((data:Recipe[])=>{
+      this.recipes=data;
     });
+
   }
 
   onNewRecipe() {
-    this.router.navigate(['new'],{relativeTo:this.route});
+    this.router.navigate(['new'], { relativeTo: this.route });
   }
 }

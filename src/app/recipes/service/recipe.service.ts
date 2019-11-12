@@ -1,11 +1,11 @@
 import { Recipe } from "../recipe.model";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { Ingredient } from "src/app/shared/ingredient.model";
 import { ShoppingListService } from "src/app/shopping-list/shopping-list.service";
 
 export class RecipeService {
-
-  constructor(private shopingListService:ShoppingListService){
+ recipeChanged = new Subject<Recipe[]>();
+  constructor(private shopingListService: ShoppingListService) {
 
   }
 
@@ -15,18 +15,30 @@ export class RecipeService {
     new Recipe('Another Test Recipe', 'This is simply a test', 'https://upload.wikimedia.org/wikipedia/commons/1/15/Recipe_logo.jpeg',
       [new Ingredient('Test1', 12), new Ingredient('Test2', 12)])
   ];
-  
-  getRecipes(): Observable<Recipe[]> {
-    var observer = new Observable<Recipe[]>(observer => {
-      setTimeout(() => {
-        observer.next(this.recipes);
-      }, 1000);
-    });
-    return observer;
+
+  getRecipes(){
+   
+    return this.recipes.slice();
   }
 
   getRecipe(index: number) {
-    return this.recipes[index];
+    return this.recipes.slice()[index];
+  }
+
+  addRecipe(recipe: Recipe) {
+    this.recipes.push(recipe);
+    this.recipeChanged.next(this.recipes.slice());
+  }
+
+  updateRecipe(index: number, recipe: Recipe) {
+    this.recipes[index] = recipe;
+    this.recipeChanged.next(this.recipes.slice());
+  }
+
+  deleteRecipe(id:number){
+    this.recipes.splice(id,1);
+    this.recipeChanged.next(this.recipes.slice());
+
   }
 
   addIngredientsToShopingList(ingredients: Ingredient[]) {
