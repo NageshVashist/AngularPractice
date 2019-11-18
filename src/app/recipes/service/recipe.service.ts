@@ -10,13 +10,18 @@ export class RecipeService {
   }
 
   recipes: Recipe[] = [
-    new Recipe('A Test Recipe', 'This is simply a test', 'https://upload.wikimedia.org/wikipedia/commons/1/15/Recipe_logo.jpeg',
-      [new Ingredient('Test1', 12), new Ingredient('Test2', 12), new Ingredient('Test3', 12)]),
-    new Recipe('Another Test Recipe', 'This is simply a test', 'https://upload.wikimedia.org/wikipedia/commons/1/15/Recipe_logo.jpeg',
-      [new Ingredient('Test1', 12), new Ingredient('Test2', 12)])
+    // new Recipe('A Test Recipe', 'This is simply a test', 'https://upload.wikimedia.org/wikipedia/commons/1/15/Recipe_logo.jpeg',
+    //   [new Ingredient('Test1', 12), new Ingredient('Test2', 12), new Ingredient('Test3', 12)]),
+    // new Recipe('Another Test Recipe', 'This is simply a test', 'https://upload.wikimedia.org/wikipedia/commons/1/15/Recipe_logo.jpeg',
+    //   [new Ingredient('Test1', 12), new Ingredient('Test2', 12)])
   ];
 
-  getRecipes(){
+  setRecipes(recipes:Recipe[]){
+    this.recipes=recipes;
+    this.recipeChanged.next(this.getRecipes());
+  }
+
+  getRecipes():Recipe[]{
    
     return this.recipes.slice();
   }

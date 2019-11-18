@@ -5,6 +5,9 @@ import { NgModule } from '@angular/core';
 import { SelectRecipeComponent } from './recipes/select-recipe/select-recipe.component';
 import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.component';
 import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component';
+import { RecipeResolver } from './recipes/recipe-resolver.service';
+import { AuthComponent } from './auth/auth.component';
+import { AuthGuard } from './auth/auth.guard';
 
 const appRoutes: Routes = [
     {
@@ -15,28 +18,36 @@ const appRoutes: Routes = [
     {
         path: 'recipe',
         component: RecipesComponent,
+        resolve: [RecipeResolver],
+        canActivate: [AuthGuard],
         children: [
             {
                 path: '',
-                component:SelectRecipeComponent,
+                component: SelectRecipeComponent,
             },
             {
-                path:'new',
-                component:RecipeEditComponent
+                path: 'new',
+                component: RecipeEditComponent
             },
             {
-                path:':id',
-                component:RecipeDetailComponent
+                path: ':id',
+                component: RecipeDetailComponent,
+                resolve: [RecipeResolver]
             },
             {
-                path:':id/edit',
-                component:RecipeEditComponent
+                path: ':id/edit',
+                component: RecipeEditComponent,
+                resolve: [RecipeResolver]
             }
         ]
     },
     {
         path: 'shopping-list',
         component: ShoppingListComponent
+    },
+    {
+        path: 'auth',
+        component: AuthComponent
     }
 ];
 @NgModule({
