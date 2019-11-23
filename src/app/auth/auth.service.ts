@@ -28,7 +28,7 @@ export class AuthService {
                 returnSecureToken: true
             }
         ).pipe(catchError(this.handleError), tap(resData => {
-            this.handleAuthentication(resData.email, resData.localId, resData.idToken, resData.expiresIn);
+            this.handleAuthentication(resData.email, resData.localId, resData.idToken, +resData.expiresIn);
         }));
     }
 
@@ -40,34 +40,37 @@ export class AuthService {
             password: password,
             returnSecureToken: true
         }).pipe(catchError(this.handleError), tap(resData => {
-            this.handleAuthentication(resData.email, resData.localId, resData.idToken, resData.expiresIn);
+            this.handleAuthentication(resData.email, resData.localId, resData.idToken, +resData.expiresIn);
         }));
     }
-    private handleAuthentication(email: string, id: string, token: string, expiresiIn: string) {
-        const expiration = new Date(new Date().getTime() + +expiresiIn * 1000);
-        const user = new User(email, id, token, expiration);
-        this.user.next(user);
-        this.autoLogout(+expiration * 1000);
-        localStorage.setItem('userData', JSON.stringify(user));
-    }
+
     autoLogin() {
         const userData: {
-            email: string,
-            id: string,
-            _token: string,
-            _tokenExpirationData: string
+            email: string;
+            id: string;
+            _token: string;
+            _tokenExpirationDate: string;
         } = JSON.parse(localStorage.getItem('userData'));
+        if (!userData) {
+            return;
+        }
 
-        const loadedUser = new User(userData.email,
+        const loadedUser = new User(
+            userData.email,
             userData.id,
             userData._token,
-            new Date(userData._tokenExpirationData));
+            new Date(userData._tokenExpirationDate)
+        );
+
         if (loadedUser.token) {
             this.user.next(loadedUser);
-            const duration = new Date(userData._tokenExpirationData).getTime() - new Date().getTime();
-            this.autoLogout(duration);
+            const expirationDuration =
+                new Date(userData._tokenExpirationDate).getTime() -
+                new Date().getTime();
+            this.autoLogout(expirationDuration);
         }
     }
+
     logout() {
         this.user.next(null);
         this.router.navigate(['/auth']);
@@ -82,37 +85,38 @@ export class AuthService {
         this.logoutTimer = setTimeout(() => {
             this.logout();
         }, expirationDuration);
+    }
 
+    private handleAuthentication(
+        email: string,
+        userId: string,
+        token: string,
+        expiresIn: number
+    ) {
+        const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
+        const user = new User(email, userId, token, expirationDate);
+        this.user.next(user);
+        this.autoLogout(expiresIn * 1000);
+        localStorage.setItem('userData', JSON.stringify(user));
     }
 
     private handleError(errorRes: HttpErrorResponse) {
-
-        let errorMsg = 'An unknown error occurred';
+        let errorMessage = 'An unknown error occurred!';
         if (!errorRes.error || !errorRes.error.error) {
-            return throwError(errorMsg);
+            return throwError(errorMessage);
         }
         switch (errorRes.error.error.message) {
             case 'EMAIL_EXISTS':
-                errorMsg = 'This E-main already exists';
+                errorMessage = 'This email exists already';
                 break;
-            case 'EMAIL_NOT_FOUND': {
-
-                errorMsg = 'This E-main does not exists';
+            case 'EMAIL_NOT_FOUND':
+                errorMessage = 'This email does not exist.';
                 break;
-            }
-            case 'INVALID_PASSWORD': {
-
-                errorMsg = 'Password not valid'
+            case 'INVALID_PASSWORD':
+                errorMessage = 'This password is not correct.';
                 break;
-            }
-            case 'USER_DISABLED': {
-
-                errorMsg = 'User is dissabled'
-                break;
-            }
-
         }
-        return throwError(errorMsg);
-
+        return throwError(errorMessage);
     }
+
 }
