@@ -1,22 +1,78 @@
 import { Ingredient } from "src/app/shared/ingredient.model";
-import { Action } from "@ngrx/store";
+import * as ShoppingListActions from "./shopping-list.actions";
 
-const initialState = {
-    ingredient: [
-        new Ingredient('Apples', 5),
-        new Ingredient('Tomatoes', 10),
-    ];
+export interface State {
+    ingredients: Ingredient[],
+    editiedIngredient: Ingredient,
+    editedIngredientIndex: number
 }
 
-export function soppingListReducer(state = initialState, action: Action) {
+export interface AppState {
+    shoppingList: State
+}
+
+const initialState: State = {
+    ingredients: [
+        new Ingredient('Apples', 5),
+        new Ingredient('Tomatoes', 10),
+    ],
+    editiedIngredient: null,
+    editedIngredientIndex: -1
+}
+
+
+export function shoppingListReducer(
+    state: State = initialState,
+    action: ShoppingListActions.ShoppingListActions
+) {
     switch (action.type) {
-        case 'ADD_INGREDIENTS'{
+        case ShoppingListActions.ADD_INGREDIENTS:
             return {
                 ...state,
-                ingredient: [...state.ingredient],
-                action
-            }
-        }
+                ingredients: [...state.ingredients, ...action.payload]
+            };
+        case ShoppingListActions.ADD_INGREDIENT:
+            return {
+                ...state,
+                ingredients: [...state.ingredients, action.payload]
+            };
+        case ShoppingListActions.UPDATE_INGRIDIENT:
+            const ingredient = state.ingredients[state.editedIngredientIndex];
+            const updatedIngredient = {
+                ...ingredient,
+                ...action.payload
+            };
+            const updateIngredients = [...state.ingredients];
+            updateIngredients[state.editedIngredientIndex] = updatedIngredient;
+            return {
+                ...state,
+                ingredients: updatedIngredient,
+                editedIngredientIndex: -1,
+                editiedIngredient: null
+            };
+
+        case ShoppingListActions.DELETE_INGRIDIENT:
+            return {
+                ...state,
+                ingredients: state.ingredients.filter(i => i != action.payload),
+                editedIngredientIndex: -1,
+                editiedIngredient: null
+            };
+
+        case ShoppingListActions.START_EDIT:
+            return {
+                ...state,
+                editedIngredientIndex: action.payload,
+                editiedIngredient: { ...state.ingredients[action.payload] }
+            };
+        case ShoppingListActions.STOP_EDIT:
+            return {
+                ...state,
+                editedIngredientIndex: -1,
+                editiedIngredient: null
+            };
+        default:
+            return state;
     }
 
 }

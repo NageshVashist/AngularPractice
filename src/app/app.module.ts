@@ -10,6 +10,8 @@ import { AppRoutingModule } from './app.route.module';
 import { AlertComponent } from './shared/alert/alert.component';
 import { SharedModule } from './shared/shared.module';
 import { CoreModule } from './core.module';
+import { StoreModule } from '@ngrx/store';
+import {shoppingListReducer} from './shopping-list/store/shopping-list.reducer';
 
 @NgModule({
   declarations: [
@@ -21,6 +23,7 @@ import { CoreModule } from './core.module';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    StoreModule.forRoot({shoppingList:shoppingListReducer}),
     SharedModule,
     CoreModule
     
